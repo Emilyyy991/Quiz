@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cyber Puzzle Challenge</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #58a6ff;
+      margin-top: 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #161b22;
+      padding: 20px;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #0d1117;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #c9d1d9;
+    }
+
+    button {
+      background-color: #238636;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #2ea043;
+    }
+
+    .hint {
+      background: #21262d;
+      padding: 10px;
+      margin-top: 20px;
+      border-left: 4px solid #58a6ff;
+      text-align: left;
+    }
+
+    #response {
+      margin-top: 15px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .success {
+      color: #58a6ff;
+    }
+
+    .fail {
+      color: #f85149;
+    }
+
+    .error {
+      color: orange;
+    }
+
+    .ciphertext {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #39ff14;
+      text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14, 0 0 20px #00ff95;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧠 Cyber Puzzle Challenge</h1>
+  <p>Decrypt the message. Outsmart the cipher. Win the hoodie.</p>
+
+  <div class="container">
+    <p><strong>Puzzle:</strong> What does this mean?</p>
+    <pre class="ciphertext">Uifsf jt op ippejf</pre>
+
+    <form id="puzzleForm">
+      <input type="text" id="name" placeholder="Your name" required />
+      <input type="text" id="answer" placeholder="Decrypted answer..." required />
+      <button type="submit">🔓 Submit</button>
+    </form>
+
+    <p id="response"></p>
+
+    <div class="hint">
+      <strong>💡 Hint:</strong> It's a Caesar Cipher. Try shifting each letter <strong>backward by 1</strong>.
+      <br>Or search: <em>“Caesar Cipher decoder online”</em>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabaseUrl = 'YOUR_SUPABASE_URL';
+    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const correctAnswer = 'there is no hoodie';
+
+    const form = document.getElementById('puzzleForm');
+    const responseEl = document.getElementById('response');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const answer = document.getElementById('answer').value.trim().toLowerCase();
+
+      const correct = answer === correctAnswer;
+
+      const { error } = await supabase.from('submissions').insert({
+        name,
+        answer,
+        correct
+      });
+
+      if (error) {
+        responseEl.textContent = '⚠️ Error saving your submission.';
+        responseEl.className = 'error';
+      } else if (correct) {
+        responseEl.textContent = '😈 Correct... You were tricked!';
+        responseEl.className = 'success';
+      } else {
+        responseEl.textContent = '❌ Incorrect. Try again!';
+        responseEl.className = 'fail';
+      }
+
+      form.reset();
+    });
+  </script>
+
+</body>
+</html>
